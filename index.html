@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>10K Training Plan – Sub 59:00</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #F7F6F3;
+    --surface: #FFFFFF;
+    --border: #E8E6E1;
+    --text: #1A1916;
+    --muted: #8A8680;
+    --accent: #2F6B4A;
+    --accent-light: #EAF3EE;
+    --quality: #C4590A;
+    --quality-light: #FDF0E8;
+    --taper: #1E5A8A;
+    --taper-light: #E8F2FA;
+    --race: #7B2FBE;
+    --race-light: #F3EBF9;
+    --done-bg: #F0FAF4;
+    --tag-radius: 4px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  /* Header */
+  .hero {
+    background: var(--text);
+    color: #fff;
+    padding: 52px 48px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    border: 40px solid rgba(255,255,255,0.04);
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -30px; left: 30%;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    border: 25px solid rgba(255,255,255,0.03);
+  }
+  .hero-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800;
+    line-height: 1.05;
+    margin-bottom: 8px;
+  }
+  .hero h1 span { color: #6ECC94; }
+  .hero-sub {
+    font-size: 15px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 300;
+    margin-bottom: 32px;
+  }
+  .hero-stats {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .stat-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+  .stat-divider {
+    width: 1px;
+    background: rgba(255,255,255,0.1);
+    align-self: stretch;
+  }
+
+  /* Progress bar */
+  .progress-bar-wrap {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 48px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+  }
+  .progress-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .progress-track {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+    transition: width 0.5s ease;
+  }
+  .progress-pct {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    white-space: nowrap;
+    min-width: 36px;
+    text-align: right;
+  }
+
+  /* Main layout */
+  .main { max-width: 860px; margin: 0 auto; padding: 40px 24px 0; }
+
+  /* Principles */
+  .principles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 48px;
+  }
+  .principle-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .principle-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--border);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .principle-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .principle-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Section header */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Week block */
+  .week { margin-bottom: 36px; }
+  .week-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .week-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .phase-tag {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: var(--tag-radius);
+  }
+  .phase-base { background: var(--accent-light); color: var(--accent); }
+  .phase-build { background: var(--quality-light); color: var(--quality); }
+  .phase-taper { background: var(--taper-light); color: var(--taper); }
+  .phase-race { background: var(--race-light); color: var(--race); }
+
+  .week-progress {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  /* Session row */
+  .session {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+    transition: box-shadow 0.15s, border-color 0.15s;
+    cursor: pointer;
+  }
+  .session:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.07); border-color: #D0CEC8; }
+  .session.done {
+    background: var(--done-bg);
+    border-color: #C5E3D0;
+  }
+  .session.done .session-title { text-decoration: line-through; color: var(--muted); }
+
+  .session-check {
+    width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+  }
+  .session.done .session-check { border-color: #C5E3D0; }
+
+  .checkbox {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid var(--border);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .session.done .checkbox {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .checkmark {
+    display: none;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .session.done .checkmark { display: block; }
+
+  .session-accent {
+    width: 3px;
+    flex-shrink: 0;
+  }
+  .easy-accent { background: var(--accent); }
+  .quality-accent { background: var(--quality); }
+  .rest-accent { background: var(--border); }
+  .race-accent { background: var(--race); }
+
+  .session-body {
+    flex: 1;
+    padding: 12px 16px;
+    min-width: 0;
+  }
+  .session-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .session-date {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 500;
+    white-space: nowrap;
+    min-width: 60px;
+  }
+  .session-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .session-type-tag {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: var(--tag-radius);
+    margin-left: auto;
+    white-space: nowrap;
+  }
+  .tag-easy { background: var(--accent-light); color: var(--accent); }
+  .tag-quality { background: var(--quality-light); color: var(--quality); }
+  .tag-rest { background: #F2F1EE; color: var(--muted); }
+  .tag-race { background: var(--race-light); color: var(--race); }
+
+  .session-detail {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 300;
+    line-height: 1.4;
+  }
+
+  /* Notes area */
+  .session-notes-wrap {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 10px 16px;
+    background: #FAFAF8;
+  }
+  .session.expanded .session-notes-wrap { display: block; }
+  .session-notes-wrap textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: var(--text);
+    resize: none;
+    min-height: 48px;
+    placeholder-color: var(--muted);
+  }
+  .notes-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  /* Race day special */
+  .race-day-card {
+    background: var(--text);
+    color: #fff;
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 36px;
+  }
+  .race-day-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .race-day-card h3 span { color: #6ECC94; }
+  .race-day-card p { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 20px; }
+  .pace-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+  .pace-block {
+    background: rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 12px 8px;
+    text-align: center;
+  }
+  .pace-km { font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 1px; margin-bottom: 4px; }
+  .pace-val { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: #6ECC94; }
+  .pace-note { font-size: 9px; color: rgba(255,255,255,0.3); margin-top: 4px; line-height: 1.3; }
+
+  /* Completion message */
+  .completion {
+    display: none;
+    text-align: center;
+    padding: 40px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 36px;
+  }
+  .completion.show { display: block; }
+  .completion-emoji { font-size: 48px; margin-bottom: 12px; }
+  .completion h2 { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; }
+
+  @media (max-width: 600px) {
+    .hero { padding: 36px 20px 28px; }
+    .progress-bar-wrap { padding: 12px 20px; }
+    .main { padding: 24px 16px 0; }
+    .pace-grid { grid-template-columns: repeat(3, 1fr); }
+    .hero-stats { gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-label">6-Week Training Plan</div>
+  <h1>Run 10K in <span>Sub 59:00</span></h1>
+  <div class="hero-sub">April 21, 2026 · Starting March 9, 2026</div>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-val">64:00</div>
+      <div class="stat-label">Current PR</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <div class="stat-val">59:00</div>
+      <div class="stat-label">Target</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <div class="stat-val">5:54/km</div>
+      <div class="stat-label">Goal Pace</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <div class="stat-val">6 wks</div>
+      <div class="stat-label">Prep Window</div>
+    </div>
+  </div>
+</div>
+
+<div class="progress-bar-wrap">
+  <div class="progress-label">Overall Progress</div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+  <div class="progress-pct" id="progressPct">0%</div>
+</div>
+
+<div class="main">
+
+  <!-- Principles -->
+  <div class="section-title" style="margin-top:8px;">The 4 Principles</div>
+  <div class="principles">
+    <div class="principle-card">
+      <div class="principle-num">01</div>
+      <div class="principle-title">Start with time</div>
+      <div class="principle-desc">6 weeks = 10K window. Race distance matches your prep window.</div>
+    </div>
+    <div class="principle-card">
+      <div class="principle-num">02</div>
+      <div class="principle-title">80/20 rule</div>
+      <div class="principle-desc">2 easy runs + 1 quality session per week. None should wreck you.</div>
+    </div>
+    <div class="principle-card">
+      <div class="principle-num">03</div>
+      <div class="principle-title">Slow progress</div>
+      <div class="principle-desc">Change only ONE variable per week: time, distance, or intensity.</div>
+    </div>
+    <div class="principle-card">
+      <div class="principle-num">04</div>
+      <div class="principle-title">Master the taper</div>
+      <div class="principle-desc">Weeks 5–6: cut volume 30–50%. Extra sleep &gt; extra miles.</div>
+    </div>
+  </div>
+
+  <!-- Sessions -->
+  <div class="section-title">Training Sessions</div>
+  <div id="sessions-container"></div>
+
+  <!-- Race Day -->
+  <div class="race-day-card">
+    <h3>Race Day <span>Strategy</span></h3>
+    <p>April 21, 2026 · Negative split approach</p>
+    <div class="pace-grid">
+      <div class="pace-block">
+        <div class="pace-km">KM 1–2</div>
+        <div class="pace-val">5:58</div>
+        <div class="pace-note">Start easy</div>
+      </div>
+      <div class="pace-block">
+        <div class="pace-km">KM 3–5</div>
+        <div class="pace-val">5:54</div>
+        <div class="pace-note">Goal pace</div>
+      </div>
+      <div class="pace-block">
+        <div class="pace-km">KM 6–8</div>
+        <div class="pace-val">5:52</div>
+        <div class="pace-note">Hold strong</div>
+      </div>
+      <div class="pace-block">
+        <div class="pace-km">KM 9</div>
+        <div class="pace-val">5:47</div>
+        <div class="pace-note">Begin push</div>
+      </div>
+      <div class="pace-block">
+        <div class="pace-km">KM 10</div>
+        <div class="pace-val">MAX</div>
+        <div class="pace-note">Empty the tank</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="completion" id="completion">
+    <div class="completion-emoji">🏅</div>
+    <h2>All sessions complete!</h2>
+    <p style="color:var(--muted);margin-top:8px;font-size:14px;">You're ready. Go run that 59:00.</p>
+  </div>
+
+</div>
+
+<script>
+const WEEKS = [
+  {
+    label: "Week 1 — Mar 9–15", phase: "BASE", phaseClass: "phase-base",
+    sessions: [
+      { date: "Mon Mar 9",  type: "easy",    title: "Easy Run – 30 min",      detail: "~6:45/km · Aerobic base, conversational pace" },
+      { date: "Wed Mar 11", type: "easy",    title: "Easy Run – 30 min",      detail: "~6:45/km · Keep it controlled" },
+      { date: "Fri Mar 13", type: "easy",    title: "Easy Run – 30 min",      detail: "~6:45/km · 2 easy + 1 quality this week" },
+      { date: "Sat Mar 14", type: "quality", title: "⚡ Quality – 30 min",    detail: "10 min @ goal pace (5:54/km) · First quality stimulus" },
+    ]
+  },
+  {
+    label: "Week 2 — Mar 16–22", phase: "BASE", phaseClass: "phase-base",
+    sessions: [
+      { date: "Mon Mar 16", type: "easy",    title: "Easy Run – 35 min",      detail: "~6:45/km · Increase TIME only this week" },
+      { date: "Wed Mar 18", type: "easy",    title: "Easy Run – 35 min",      detail: "~6:45/km · Controlled, not hard" },
+      { date: "Fri Mar 20", type: "easy",    title: "Easy Run – 35 min",      detail: "~6:30/km · Slight pickup last 5 min" },
+      { date: "Sat Mar 21", type: "quality", title: "⚡ Quality – 35 min",    detail: "15 min @ 6:00/km · Tempo — demanding, not wrecking" },
+    ]
+  },
+  {
+    label: "Week 3 — Mar 23–29", phase: "BUILD", phaseClass: "phase-build",
+    sessions: [
+      { date: "Mon Mar 23", type: "easy",    title: "Easy Run – 35 min",      detail: "~6:30/km · Increase quality this week" },
+      { date: "Wed Mar 25", type: "easy",    title: "Easy Run – 40 min",      detail: "~6:30/km · Comfortable aerobic" },
+      { date: "Fri Mar 27", type: "easy",    title: "Easy Run – 35 min",      detail: "~6:30/km · Stay easy — protect Saturday" },
+      { date: "Sat Mar 28", type: "quality", title: "⚡ Intervals",            detail: "3×8 min @ 5:54/km · 2 min walk rest" },
+    ]
+  },
+  {
+    label: "Week 4 — Mar 30 – Apr 5", phase: "BUILD", phaseClass: "phase-build",
+    sessions: [
+      { date: "Mon Mar 30", type: "easy",    title: "Easy Run – 40 min",      detail: "~6:30/km · Increase distance this week" },
+      { date: "Wed Apr 1",  type: "easy",    title: "Easy Run – 45 min",      detail: "~6:30/km · Longest easy run of the plan" },
+      { date: "Fri Apr 3",  type: "easy",    title: "Easy Run – 35 min",      detail: "~6:30/km · Shorter — protect Saturday" },
+      { date: "Sat Apr 4",  type: "quality", title: "⚡ Intervals",            detail: "4×8 min @ 5:54/km · 90s walk rest" },
+    ]
+  },
+  {
+    label: "Week 5 — Apr 6–12", phase: "TAPER", phaseClass: "phase-taper",
+    sessions: [
+      { date: "Mon Apr 6",  type: "easy",    title: "Easy Run – 30 min",      detail: "~6:30/km · Volume cut 30–50%" },
+      { date: "Wed Apr 8",  type: "easy",    title: "Easy Run – 25 min",      detail: "~6:30/km · Short and comfortable" },
+      { date: "Fri Apr 10", type: "easy",    title: "Easy Run – 25 min",      detail: "~6:30/km · Light legs" },
+      { date: "Sat Apr 11", type: "quality", title: "⚡ Quality Stimulus",     detail: "10 min @ 5:54/km · Stay sharp, not tired" },
+    ]
+  },
+  {
+    label: "Week 6 — Apr 13–20 (Race Week)", phase: "TAPER", phaseClass: "phase-taper",
+    sessions: [
+      { date: "Mon Apr 13", type: "easy",    title: "Easy Run – 20 min",      detail: "Very easy · Arrive sharp and rested" },
+      { date: "Wed Apr 15", type: "easy",    title: "Shakeout + Strides",     detail: "15 min easy + 4×30s strides · Wake up the legs" },
+      { date: "Sat Apr 19", type: "easy",    title: "Shakeout – 10 min",      detail: "Very easy jog · Just loosen up" },
+    ]
+  },
+];
+
+const TYPE_ACCENT = { easy: "easy-accent", quality: "quality-accent", rest: "rest-accent", race: "race-accent" };
+const TYPE_TAG = { easy: "tag-easy", quality: "tag-quality", rest: "tag-rest", race: "tag-race" };
+const TYPE_LABEL = { easy: "Easy", quality: "Quality", rest: "Rest", race: "Race Day" };
+
+let totalSessions = 0;
+let doneSessions = 0;
+const saved = JSON.parse(localStorage.getItem('trainingState') || '{}');
+
+function saveState() {
+  localStorage.setItem('trainingState', JSON.stringify(saved));
+}
+
+function updateProgress() {
+  const pct = totalSessions === 0 ? 0 : Math.round((doneSessions / totalSessions) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+  if (pct === 100) document.getElementById('completion').classList.add('show');
+  else document.getElementById('completion').classList.remove('show');
+
+  // Update week progress labels
+  WEEKS.forEach((week, wi) => {
+    const el = document.getElementById(`week-prog-${wi}`);
+    if (!el) return;
+    let done = 0;
+    week.sessions.forEach((_, si) => {
+      const key = `${wi}-${si}`;
+      if (saved[key]?.done) done++;
+    });
+    el.textContent = `${done}/${week.sessions.length}`;
+  });
+}
+
+function buildUI() {
+  const container = document.getElementById('sessions-container');
+
+  WEEKS.forEach((week, wi) => {
+    totalSessions += week.sessions.length;
+
+    const weekDiv = document.createElement('div');
+    weekDiv.className = 'week';
+
+    const header = document.createElement('div');
+    header.className = 'week-header';
+    header.innerHTML = `
+      <div class="week-title">${week.label}</div>
+      <span class="phase-tag ${week.phaseClass}">${week.phase}</span>
+      <div class="week-progress" id="week-prog-${wi}">0/${week.sessions.length}</div>
+    `;
+    weekDiv.appendChild(header);
+
+    week.sessions.forEach((session, si) => {
+      const key = `${wi}-${si}`;
+      const state = saved[key] || { done: false, notes: '' };
+      if (state.done) doneSessions++;
+
+      const div = document.createElement('div');
+      div.className = 'session' + (state.done ? ' done' : '');
+      div.dataset.key = key;
+
+      div.innerHTML = `
+        <div class="session-check">
+          <div class="checkbox"><span class="checkmark">✓</span></div>
+        </div>
+        <div class="session-accent ${TYPE_ACCENT[session.type]}"></div>
+        <div class="session-body">
+          <div class="session-top">
+            <div class="session-date">${session.date}</div>
+            <div class="session-title">${session.title}</div>
+            <span class="session-type-tag ${TYPE_TAG[session.type]}">${TYPE_LABEL[session.type]}</span>
+          </div>
+          <div class="session-detail">${session.detail}</div>
+        </div>
+        <div class="session-notes-wrap">
+          <div class="notes-label">Session Notes</div>
+          <textarea placeholder="How did it go? Pace, effort, feelings…" rows="2">${state.notes || ''}</textarea>
+        </div>
+      `;
+
+      // Toggle done on checkbox click
+      div.querySelector('.session-check').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isDone = div.classList.toggle('done');
+        saved[key] = saved[key] || {};
+        if (isDone) {
+          saved[key].done = true;
+          doneSessions++;
+        } else {
+          saved[key].done = false;
+          doneSessions--;
+        }
+        saveState();
+        updateProgress();
+      });
+
+      // Toggle notes on body click
+      div.querySelector('.session-body').addEventListener('click', () => {
+        div.classList.toggle('expanded');
+      });
+
+      // Save notes on input
+      div.querySelector('textarea').addEventListener('input', (e) => {
+        e.stopPropagation();
+        saved[key] = saved[key] || {};
+        saved[key].notes = e.target.value;
+        saveState();
+      });
+      div.querySelector('textarea').addEventListener('click', e => e.stopPropagation());
+
+      weekDiv.appendChild(div);
+    });
+
+    container.appendChild(weekDiv);
+  });
+
+  updateProgress();
+}
+
+buildUI();
+</script>
+</body>
+</html>
