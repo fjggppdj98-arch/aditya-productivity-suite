@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Samuel's Study Hub</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+–bg: #0a0f0d;
+–surface: #0f1612;
+–card: #131a16;
+–border: rgba(255,255,255,0.07);
+–text: #e8ede9;
+–muted: rgba(232,237,233,0.45);
+–green: #4ade80;
+–green-dim: rgba(74,222,128,0.12);
+–teal: #22d3ee;
+–teal-dim: rgba(34,211,238,0.1);
+–amber: #fbbf24;
+–amber-dim: rgba(251,191,36,0.1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+font-family: ‘Outfit’, -apple-system, sans-serif;
+background: var(–bg);
+color: var(–text);
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* ── NOISE OVERLAY ── */
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background-image: url(“data:image/svg+xml,%3Csvg viewBox=‘0 0 256 256’ xmlns=‘http://www.w3.org/2000/svg’%3E%3Cfilter id=‘noise’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=‘0.9’ numOctaves=‘4’ stitchTiles=‘stitch’/%3E%3C/filter%3E%3Crect width=‘100%25’ height=‘100%25’ filter=‘url(%23noise)’ opacity=‘0.04’/%3E%3C/svg%3E”);
+pointer-events: none;
+z-index: 0;
+}
+
+/* ── AMBIENT GLOWS ── */
+.glow-1 {
+position: fixed;
+top: -200px; right: -200px;
+width: 600px; height: 600px;
+border-radius: 50%;
+background: radial-gradient(circle, rgba(34,211,238,0.06) 0%, transparent 65%);
+pointer-events: none;
+}
+.glow-2 {
+position: fixed;
+bottom: -200px; left: -100px;
+width: 500px; height: 500px;
+border-radius: 50%;
+background: radial-gradient(circle, rgba(74,222,128,0.05) 0%, transparent 65%);
+pointer-events: none;
+}
+
+/* ── WRAPPER ── */
+.wrapper {
+position: relative;
+z-index: 1;
+max-width: 680px;
+margin: 0 auto;
+padding: 80px 28px 80px;
+}
+
+/* ── EYEBROW ── */
+.eyebrow {
+font-family: ‘DM Mono’, monospace;
+font-size: 11px;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(–green);
+margin-bottom: 20px;
+opacity: 0;
+animation: fadeUp 0.6s ease forwards;
+}
+
+/* ── HERO ── */
+.hero-name {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: clamp(52px, 10vw, 80px);
+font-weight: 300;
+line-height: 1;
+letter-spacing: -0.02em;
+margin-bottom: 6px;
+opacity: 0;
+animation: fadeUp 0.6s 0.1s ease forwards;
+}
+.hero-name em {
+font-style: italic;
+color: rgba(232,237,233,0.4);
+}
+
+.hero-title {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: clamp(18px, 4vw, 24px);
+font-weight: 300;
+font-style: italic;
+color: var(–muted);
+margin-bottom: 40px;
+opacity: 0;
+animation: fadeUp 0.6s 0.2s ease forwards;
+}
+
+/* ── DIVIDER ── */
+.divider {
+display: flex;
+align-items: center;
+gap: 16px;
+margin-bottom: 48px;
+opacity: 0;
+animation: fadeUp 0.6s 0.3s ease forwards;
+}
+.divider-line { flex: 1; height: 1px; background: var(–border); }
+.divider-text {
+font-family: ‘DM Mono’, monospace;
+font-size: 10px;
+letter-spacing: 0.15em;
+text-transform: uppercase;
+color: var(–muted);
+}
+
+/* ── CARDS ── */
+.cards { display: flex; flex-direction: column; gap: 16px; }
+
+.card {
+display: block;
+text-decoration: none;
+background: var(–card);
+border: 1px solid var(–border);
+border-radius: 20px;
+padding: 28px 30px;
+position: relative;
+overflow: hidden;
+transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1),
+border-color 0.3s ease,
+box-shadow 0.3s ease;
+opacity: 0;
+}
+.card:nth-child(1) { animation: fadeUp 0.6s 0.35s ease forwards; }
+.card:nth-child(2) { animation: fadeUp 0.6s 0.45s ease forwards; }
+
+.card::before {
+content: ‘’;
+position: absolute;
+inset: 0;
+opacity: 0;
+transition: opacity 0.3s ease;
+border-radius: 20px;
+}
+.card-running::before { background: var(–amber-dim); }
+.card-obgyn::before   { background: var(–teal-dim); }
+
+.card:hover {
+transform: translateY(-4px);
+border-color: rgba(255,255,255,0.14);
+box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+}
+.card:hover::before { opacity: 1; }
+
+.card-inner { position: relative; z-index: 1; }
+
+.card-top {
+display: flex;
+align-items: flex-start;
+justify-content: space-between;
+margin-bottom: 16px;
+}
+
+.card-icon {
+width: 48px; height: 48px;
+border-radius: 14px;
+display: flex; align-items: center; justify-content: center;
+font-size: 22px;
+flex-shrink: 0;
+}
+.card-running .card-icon { background: rgba(251,191,36,0.12); }
+.card-obgyn   .card-icon { background: rgba(34,211,238,0.10); }
+
+.card-arrow {
+font-size: 20px;
+color: var(–muted);
+transition: transform 0.3s ease, color 0.3s ease;
+}
+.card:hover .card-arrow { transform: translate(3px,-3px); color: var(–text); }
+
+.card-label {
+font-family: ‘DM Mono’, monospace;
+font-size: 10px;
+letter-spacing: 0.15em;
+text-transform: uppercase;
+margin-bottom: 6px;
+}
+.card-running .card-label { color: var(–amber); }
+.card-obgyn   .card-label { color: var(–teal); }
+
+.card-title {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 28px;
+font-weight: 400;
+line-height: 1.15;
+color: var(–text);
+margin-bottom: 10px;
+}
+
+.card-desc {
+font-size: 13.5px;
+font-weight: 300;
+color: var(–muted);
+line-height: 1.6;
+margin-bottom: 20px;
+}
+
+.card-pills {
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+}
+.pill {
+font-family: ‘DM Mono’, monospace;
+font-size: 10px;
+padding: 4px 10px;
+border-radius: 99px;
+border: 1px solid var(–border);
+color: var(–muted);
+letter-spacing: 0.05em;
+}
+.card-running .pill { border-color: rgba(251,191,36,0.2); color: rgba(251,191,36,0.7); }
+.card-obgyn   .pill { border-color: rgba(34,211,238,0.2); color: rgba(34,211,238,0.7); }
+
+/* ── FOOTER ── */
+.footer {
+margin-top: 64px;
+display: flex;
+align-items: center;
+gap: 12px;
+opacity: 0;
+animation: fadeUp 0.6s 0.55s ease forwards;
+}
+.footer-line { flex: 1; height: 1px; background: var(–border); }
+.footer-text {
+font-family: ‘DM Mono’, monospace;
+font-size: 10px;
+letter-spacing: 0.12em;
+text-transform: uppercase;
+color: rgba(232,237,233,0.2);
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+from { opacity: 0; transform: translateY(18px); }
+to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── MOBILE ── */
+@media (max-width: 480px) {
+.wrapper { padding: 60px 20px 60px; }
+.card { padding: 22px 22px; }
+.card-title { font-size: 24px; }
+}
+</style>
+
+</head>
+<body>
+
+<div class="glow-1"></div>
+<div class="glow-2"></div>
+
+<div class="wrapper">
+
+  <div class="eyebrow">📚 Personal Dashboard</div>
+
+  <h1 class="hero-name">Samuel's<br><em>Study Hub</em></h1>
+  <p class="hero-title">MBBS · 3rd Year · Nashik</p>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-text">My Planners</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <div class="cards">
+
+```
+<!-- Running Tracker -->
+<a class="card card-running" href="./index-running.html">
+  <div class="card-inner">
+    <div class="card-top">
+      <div class="card-icon">🏃</div>
+      <div class="card-arrow">↗</div>
+    </div>
+    <div class="card-label">Training · April 21, 2026</div>
+    <div class="card-title">10K Running<br>Tracker</div>
+    <div class="card-desc">6-week structured training plan targeting a sub-60 min 10K. Zone 2 heart rate training, weekly progression, and race day prep.</div>
+    <div class="card-pills">
+      <span class="pill">6 Weeks</span>
+      <span class="pill">Sub-60 min</span>
+      <span class="pill">Zone 2</span>
+      <span class="pill">Race: Apr 21</span>
+    </div>
+  </div>
+</a>
+
+<!-- OBGYN Planner -->
+<a class="card card-obgyn" href="./ob-planner.html">
+  <div class="card-inner">
+    <div class="card-top">
+      <div class="card-icon">🩺</div>
+      <div class="card-arrow">↗</div>
+    </div>
+    <div class="card-label">MBBS · 3rd Year</div>
+    <div class="card-title">Obstetrics &<br>Gynaecology</div>
+    <div class="card-desc">Day-wise lecture planner for OBGYN covering 61 videos across 25 days. Tracks completion, hours studied, and section-wise progress.</div>
+    <div class="card-pills">
+      <span class="pill">61 Lectures</span>
+      <span class="pill">25 Days</span>
+      <span class="pill">Videos 51–111</span>
+      <span class="pill">10:15–1:15 PM</span>
+    </div>
+  </div>
+</a>
+```
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-line"></div>
+    <div class="footer-text">Built with Claude · 2026</div>
+    <div class="footer-line"></div>
+  </div>
+
+</div>
+
+</body>
+</html>
