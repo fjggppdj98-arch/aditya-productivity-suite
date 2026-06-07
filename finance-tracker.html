@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Rupee — Finance Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #18181f;
+    --card: #1c1c26;
+    --card2: #22222e;
+    --border: #2a2a38;
+    --accent: #7c6dfa;
+    --accent2: #a78bfa;
+    --accent-glow: rgba(124,109,250,0.18);
+    --green: #34d399;
+    --green-dim: rgba(52,211,153,0.12);
+    --red: #f87171;
+    --red-dim: rgba(248,113,113,0.12);
+    --amber: #fbbf24;
+    --amber-dim: rgba(251,191,36,0.12);
+    --text: #f0f0f8;
+    --text2: #9090a8;
+    --text3: #5a5a72;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --cat1: #7c6dfa;
+    --cat2: #f472b6;
+    --cat3: #34d399;
+    --cat4: #fbbf24;
+    --cat5: #60a5fa;
+    --cat6: #fb923c;
+    --cat7: #a78bfa;
+    --cat8: #4ade80;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── LAYOUT ── */
+  #app { display: flex; flex-direction: column; min-height: 100vh; max-width: 480px; margin: 0 auto; position: relative; }
+
+  @media (min-width: 768px) {
+    body { display: flex; }
+    #sidebar { display: flex !important; flex-direction: column; width: 240px; min-height: 100vh; background: var(--bg2); border-right: 1px solid var(--border); padding: 32px 20px; position: fixed; left: 0; top: 0; bottom: 0; gap: 8px; }
+    #bottom-nav { display: none !important; }
+    #app { max-width: 720px; margin-left: 240px; padding-bottom: 24px; }
+    .page { padding: 28px 28px 28px; }
+  }
+
+  @media (min-width: 1100px) {
+    #app { max-width: 900px; }
+  }
+
+  /* ── SIDEBAR (tablet/desktop) ── */
+  #sidebar { display: none; }
+  .sidebar-logo { font-family: var(--font-display); font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 28px; padding-left: 8px; letter-spacing: -0.5px; }
+  .sidebar-logo span { color: var(--accent2); }
+  .sidebar-nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: var(--radius-sm); cursor: pointer; font-family: var(--font-body); font-size: 14px; font-weight: 500; color: var(--text2); transition: all 0.18s; border: none; background: none; width: 100%; text-align: left; }
+  .sidebar-nav-item:hover { background: var(--card); color: var(--text); }
+  .sidebar-nav-item.active { background: var(--accent-glow); color: var(--accent2); }
+  .sidebar-nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .sidebar-spacer { flex: 1; }
+  .sidebar-cycle-info { background: var(--card); border-radius: var(--radius-sm); padding: 14px; font-size: 12px; color: var(--text2); line-height: 1.6; }
+  .sidebar-cycle-info strong { color: var(--text); font-size: 13px; }
+
+  /* ── BOTTOM NAV (mobile) ── */
+  #bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg2); border-top: 1px solid var(--border); display: flex; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; cursor: pointer; font-size: 10px; color: var(--text3); font-family: var(--font-body); font-weight: 500; transition: color 0.18s; border: none; background: none; }
+  .nav-item.active { color: var(--accent2); }
+  .nav-item svg { width: 20px; height: 20px; }
+
+  /* ── PAGES ── */
+  .page { display: none; padding: 20px 16px 100px; animation: fadeUp 0.22s ease; }
+  .page.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── HEADER ── */
+  .page-header { margin-bottom: 20px; }
+  .page-title { font-family: var(--font-display); font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+  .page-subtitle { font-size: 13px; color: var(--text2); margin-top: 3px; }
+
+  /* ── CARDS ── */
+  .card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 18px; margin-bottom: 14px; }
+  .card-sm { background: var(--card); border-radius: var(--radius-sm); border: 1px solid var(--border); padding: 14px; }
+
+  /* ── HOME PAGE ── */
+  .balance-card { background: linear-gradient(135deg, #1a1830 0%, #1c1c2e 60%, #161620 100%); border: 1px solid rgba(124,109,250,0.25); border-radius: var(--radius); padding: 24px; margin-bottom: 14px; position: relative; overflow: hidden; }
+  .balance-card::before { content: ''; position: absolute; top: -40px; right: -40px; width: 160px; height: 160px; background: radial-gradient(circle, rgba(124,109,250,0.15) 0%, transparent 70%); pointer-events: none; }
+  .balance-label { font-size: 12px; color: var(--text2); font-weight: 500; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .balance-amount { font-family: var(--font-display); font-size: 42px; font-weight: 800; letter-spacing: -2px; line-height: 1; }
+  .balance-amount .currency { font-size: 24px; font-weight: 600; opacity: 0.7; vertical-align: top; margin-top: 6px; display: inline-block; }
+  .balance-sub { font-size: 13px; color: var(--text2); margin-top: 8px; }
+  .balance-sub span { color: var(--text); font-weight: 500; }
+
+  .pace-bar-wrap { margin-top: 16px; }
+  .pace-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text2); margin-bottom: 6px; }
+  .pace-bar { height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .pace-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
+
+  .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; }
+  .stat-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+  .stat-value { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+  .stat-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+  .quick-add-btn { width: 100%; background: var(--accent); color: #fff; border: none; border-radius: var(--radius); padding: 16px; font-family: var(--font-display); font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.18s; letter-spacing: 0.3px; margin-bottom: 14px; }
+  .quick-add-btn:active { transform: scale(0.97); background: #6a5de8; }
+
+  .recent-label { font-size: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 10px; }
+  .expense-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .expense-item:last-child { border-bottom: none; }
+  .expense-dot { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+  .expense-info { flex: 1; min-width: 0; }
+  .expense-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .expense-meta { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .expense-amount { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--red); flex-shrink: 0; }
+
+  /* ── MODAL ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200; align-items: flex-end; justify-content: center; backdrop-filter: blur(4px); }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--bg2); border-radius: 24px 24px 0 0; width: 100%; max-width: 480px; padding: 24px 20px 36px; animation: slideUp 0.25s cubic-bezier(0.32,0.72,0,1); border-top: 1px solid var(--border); }
+  @media (min-width: 768px) {
+    .modal-overlay { align-items: center; }
+    .modal { border-radius: 20px; max-width: 420px; }
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 99px; margin: 0 auto 20px; }
+  .modal-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+
+  .amount-input-wrap { position: relative; margin-bottom: 20px; }
+  .amount-prefix { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-family: var(--font-display); font-size: 24px; font-weight: 700; color: var(--text2); }
+  .amount-input { width: 100%; background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 16px 16px 16px 36px; font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--text); outline: none; transition: border-color 0.18s; }
+  .amount-input:focus { border-color: var(--accent); }
+  .amount-input::placeholder { color: var(--text3); }
+
+  .input-label { font-size: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; font-weight: 600; }
+  .text-input { width: 100%; background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 13px 14px; font-family: var(--font-body); font-size: 15px; color: var(--text); outline: none; transition: border-color 0.18s; margin-bottom: 16px; }
+  .text-input:focus { border-color: var(--accent); }
+  .text-input::placeholder { color: var(--text3); }
+
+  .cat-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .cat-chip { padding: 8px 14px; border-radius: 99px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1.5px solid var(--border); background: var(--card); color: var(--text2); transition: all 0.15s; font-family: var(--font-body); }
+  .cat-chip.selected { border-color: transparent; color: #fff; }
+
+  .sub-toggle { font-size: 12px; color: var(--text2); cursor: pointer; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .sub-section { display: none; }
+  .sub-section.visible { display: block; }
+
+  .modal-submit { width: 100%; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); padding: 15px; font-family: var(--font-display); font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.18s; margin-top: 4px; }
+  .modal-submit:active { transform: scale(0.97); }
+  .modal-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── EXPENSES PAGE ── */
+  .chart-wrap { position: relative; height: 220px; margin: 8px auto; max-width: 220px; }
+  .expense-list-wrap { margin-top: 8px; }
+  .expense-delete { background: none; border: none; color: var(--text3); cursor: pointer; padding: 4px; border-radius: 6px; transition: color 0.15s; }
+  .expense-delete:hover { color: var(--red); }
+  .filter-row { display: flex; gap: 8px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px; }
+  .filter-chip { padding: 6px 14px; border-radius: 99px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1.5px solid var(--border); background: var(--card); color: var(--text2); white-space: nowrap; font-family: var(--font-body); transition: all 0.15s; }
+  .filter-chip.active { border-color: var(--accent); color: var(--accent2); background: var(--accent-glow); }
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--text2); font-size: 14px; }
+  .empty-state .big { font-size: 36px; margin-bottom: 10px; }
+
+  /* ── ENVELOPES PAGE ── */
+  .envelope-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 10px; }
+  .envelope-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .envelope-name { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; }
+  .envelope-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .envelope-amounts { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 6px; }
+  .envelope-bar { height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .envelope-fill { height: 100%; border-radius: 99px; transition: width 0.4s ease; }
+  .envelope-actions { display: flex; gap: 8px; }
+  .icon-btn { background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; color: var(--text2); font-size: 13px; font-family: var(--font-body); transition: all 0.15s; }
+  .icon-btn:hover { color: var(--text); border-color: var(--accent); }
+  .icon-btn.danger:hover { color: var(--red); border-color: var(--red); }
+  .budget-total-row { display: flex; justify-content: space-between; align-items: center; padding: 14px; background: var(--card2); border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 14px; font-size: 14px; }
+  .budget-total-row strong { font-family: var(--font-display); font-size: 16px; }
+  .add-envelope-btn { width: 100%; background: none; border: 1.5px dashed var(--border); border-radius: var(--radius-sm); padding: 13px; color: var(--text2); font-family: var(--font-body); font-size: 14px; cursor: pointer; transition: all 0.18s; }
+  .add-envelope-btn:hover { border-color: var(--accent); color: var(--accent2); }
+
+  /* ── GOALS PAGE ── */
+  .goal-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 12px; position: relative; overflow: hidden; }
+  .goal-card.completed { border-color: rgba(52,211,153,0.3); }
+  .goal-card.completed::after { content: '✓ Done'; position: absolute; top: 14px; right: 14px; background: var(--green-dim); color: var(--green); font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 99px; }
+  .goal-name { font-family: var(--font-display); font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .goal-sub { font-size: 12px; color: var(--text2); margin-bottom: 14px; }
+  .goal-bar { height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; margin-bottom: 10px; }
+  .goal-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.5s ease; }
+  .goal-fill.done { background: linear-gradient(90deg, var(--green), #6ee7b7); }
+  .goal-amounts { display: flex; justify-content: space-between; font-size: 13px; color: var(--text2); margin-bottom: 14px; }
+  .goal-amounts span { font-weight: 600; color: var(--text); }
+  .goal-actions { display: flex; gap: 8px; }
+  .goal-fund-btn { flex: 1; background: var(--accent-glow); border: 1px solid rgba(124,109,250,0.3); border-radius: 8px; padding: 9px; color: var(--accent2); font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font-body); transition: all 0.15s; }
+  .goal-fund-btn:hover { background: var(--accent); color: #fff; }
+
+  /* ── SETTINGS / CYCLE PAGE ── */
+  .cycle-banner { background: linear-gradient(135deg, #1a1830, #1c1c2e); border: 1px solid rgba(124,109,250,0.25); border-radius: var(--radius); padding: 20px; margin-bottom: 14px; }
+  .cycle-status { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .cycle-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .cycle-dot.inactive { background: var(--text3); animation: none; }
+  .cycle-label { font-size: 13px; color: var(--text2); }
+  .cycle-value { font-family: var(--font-display); font-size: 28px; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px; }
+  .cycle-sub { font-size: 13px; color: var(--text2); }
+  .danger-btn { width: 100%; background: var(--red-dim); border: 1px solid rgba(248,113,113,0.25); border-radius: var(--radius-sm); padding: 13px; color: var(--red); font-family: var(--font-body); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.18s; margin-bottom: 10px; }
+  .danger-btn:hover { background: rgba(248,113,113,0.2); }
+  .success-btn { width: 100%; background: var(--green-dim); border: 1px solid rgba(52,211,153,0.25); border-radius: var(--radius-sm); padding: 13px; color: var(--green); font-family: var(--font-body); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.18s; margin-bottom: 10px; }
+  .history-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .history-item:last-child { border-bottom: none; }
+
+  /* ── TOAST ── */
+  #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--card); border: 1px solid var(--border); border-radius: 99px; padding: 10px 20px; font-size: 13px; font-weight: 500; opacity: 0; pointer-events: none; transition: all 0.25s; z-index: 300; white-space: nowrap; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  @media (min-width: 768px) { #toast { bottom: 24px; } }
+
+  /* ── CONFIRM DIALOG ── */
+  .confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 250; align-items: center; justify-content: center; backdrop-filter: blur(4px); padding: 20px; }
+  .confirm-overlay.open { display: flex; }
+  .confirm-box { background: var(--bg2); border-radius: var(--radius); border: 1px solid var(--border); padding: 24px; width: 100%; max-width: 340px; }
+  .confirm-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+  .confirm-msg { font-size: 14px; color: var(--text2); margin-bottom: 20px; line-height: 1.5; }
+  .confirm-btns { display: flex; gap: 10px; }
+  .confirm-cancel { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; color: var(--text); font-family: var(--font-body); font-size: 14px; cursor: pointer; }
+  .confirm-ok { flex: 1; background: var(--red); border: none; border-radius: var(--radius-sm); padding: 12px; color: #fff; font-family: var(--font-body); font-size: 14px; font-weight: 600; cursor: pointer; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+  select.text-input { appearance: none; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar (tablet+) -->
+<nav id="sidebar">
+  <div class="sidebar-logo">rupee<span>.</span></div>
+  <button class="sidebar-nav-item active" onclick="navigate('home')" id="snav-home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Home
+  </button>
+  <button class="sidebar-nav-item" onclick="navigate('expenses')" id="snav-expenses">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+    Expenses
+  </button>
+  <button class="sidebar-nav-item" onclick="navigate('envelopes')" id="snav-envelopes">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8L2 7h20z"/></svg>
+    Envelopes
+  </button>
+  <button class="sidebar-nav-item" onclick="navigate('goals')" id="snav-goals">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+    Goals
+  </button>
+  <button class="sidebar-nav-item" onclick="navigate('cycle')" id="snav-cycle">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+    Cycle & Backup
+  </button>
+  <div class="sidebar-spacer"></div>
+  <div class="sidebar-cycle-info" id="sidebar-cycle-info">No active cycle</div>
+</nav>
+
+<!-- Main App -->
+<div id="app">
+
+  <!-- ── HOME ── -->
+  <div id="page-home" class="page active">
+    <div class="page-header">
+      <div class="page-title">Overview</div>
+      <div class="page-subtitle" id="home-date">—</div>
+    </div>
+
+    <div class="balance-card">
+      <div class="balance-label">Balance Remaining</div>
+      <div class="balance-amount"><span class="currency">₹</span><span id="home-balance">0</span></div>
+      <div class="balance-sub">of <span id="home-budget">₹2,500</span> monthly budget</div>
+      <div class="pace-bar-wrap">
+        <div class="pace-labels">
+          <span id="pace-label-left">Day 0 of 30</span>
+          <span id="pace-label-right">On track</span>
+        </div>
+        <div class="pace-bar"><div class="pace-fill" id="pace-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Spent</div>
+        <div class="stat-value" id="stat-spent">₹0</div>
+        <div class="stat-sub" id="stat-spent-pct">0% of budget</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Daily Budget</div>
+        <div class="stat-value" id="stat-daily">₹0</div>
+        <div class="stat-sub" id="stat-daily-sub">per day left</div>
+      </div>
+    </div>
+
+    <button class="quick-add-btn" onclick="openAddModal()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Log Expense
+    </button>
+
+    <div class="card">
+      <div class="recent-label">Recent Expenses</div>
+      <div id="recent-list"><div class="empty-state"><div class="big">💸</div>No expenses yet</div></div>
+    </div>
+  </div>
+
+  <!-- ── EXPENSES ── -->
+  <div id="page-expenses" class="page">
+    <div class="page-header">
+      <div class="page-title">Expenses</div>
+      <div class="page-subtitle">This month's spending breakdown</div>
+    </div>
+
+    <div class="card" style="margin-bottom:14px">
+      <div class="chart-wrap"><canvas id="pie-chart"></canvas></div>
+      <div id="chart-legend" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;justify-content:center"></div>
+    </div>
+
+    <div class="filter-row" id="filter-row">
+      <div class="filter-chip active" data-filter="all" onclick="setFilter('all',this)">All</div>
+    </div>
+
+    <div id="expense-list"><div class="empty-state"><div class="big">📋</div>No expenses logged yet</div></div>
+  </div>
+
+  <!-- ── ENVELOPES ── -->
+  <div id="page-envelopes" class="page">
+    <div class="page-header">
+      <div class="page-title">Envelopes</div>
+      <div class="page-subtitle">Your spending allocations</div>
+    </div>
+
+    <div class="budget-total-row">
+      <span>Total allocated</span>
+      <strong id="total-allocated">₹0 / ₹2,500</strong>
+    </div>
+
+    <div id="envelope-list"></div>
+
+    <button class="add-envelope-btn" onclick="openAddEnvelopeModal()">+ Add new envelope</button>
+  </div>
+
+  <!-- ── GOALS ── -->
+  <div id="page-goals" class="page">
+    <div class="page-header">
+      <div class="page-title">Goals</div>
+      <div class="page-subtitle">What you're saving toward</div>
+    </div>
+    <button class="quick-add-btn" style="margin-bottom:16px" onclick="openAddGoalModal()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Goal
+    </button>
+    <div id="goal-list"><div class="empty-state"><div class="big">🎯</div>Add your first savings goal</div></div>
+  </div>
+
+  <!-- ── CYCLE & BACKUP ── -->
+  <div id="page-cycle" class="page">
+    <div class="page-header">
+      <div class="page-title">Cycle & Backup</div>
+      <div class="page-subtitle">Manage your monthly cycle and data</div>
+    </div>
+
+    <div class="cycle-banner">
+      <div class="cycle-status"><div class="cycle-dot" id="cycle-dot"></div><span class="cycle-label" id="cycle-status-label">No active cycle</span></div>
+      <div class="cycle-value" id="cycle-days-left">—</div>
+      <div class="cycle-sub" id="cycle-sub">Start a new cycle to begin tracking</div>
+    </div>
+
+    <div class="card" style="margin-bottom:14px">
+      <div class="recent-label" style="margin-bottom:12px">Monthly Budget</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="amount-input-wrap" style="flex:1;margin-bottom:0">
+          <span class="amount-prefix" style="font-size:18px;top:50%">₹</span>
+          <input type="number" id="budget-input" class="amount-input" style="font-size:20px;padding-left:28px" value="2500" min="100" max="50000">
+        </div>
+        <button class="icon-btn" onclick="saveBudget()" style="padding:12px 16px;font-weight:600">Save</button>
+      </div>
+    </div>
+
+    <button class="success-btn" id="start-cycle-btn" onclick="startNewCycle()">▶ Start New Month</button>
+    <button class="danger-btn" id="end-cycle-btn" onclick="confirmEndCycle()" style="display:none">⏹ End Current Cycle</button>
+
+    <div class="card" style="margin-top:4px">
+      <div class="recent-label" style="margin-bottom:12px">Data Backup</div>
+      <button class="success-btn" style="margin-bottom:8px" onclick="exportData()">⬇ Export JSON Backup</button>
+      <label class="danger-btn" style="display:block;text-align:center;cursor:pointer;margin-bottom:0">
+        ⬆ Import JSON Backup
+        <input type="file" accept=".json" style="display:none" onchange="importData(event)">
+      </label>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="recent-label" style="margin-bottom:12px">Cycle History</div>
+      <div id="cycle-history"><div style="font-size:13px;color:var(--text2)">No past cycles yet.</div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Bottom Nav (mobile) -->
+<nav id="bottom-nav">
+  <button class="nav-item active" onclick="navigate('home')" id="bnav-home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Home
+  </button>
+  <button class="nav-item" onclick="navigate('expenses')" id="bnav-expenses">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+    Expenses
+  </button>
+  <button class="nav-item" onclick="navigate('envelopes')" id="bnav-envelopes">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8L2 7h20z"/></svg>
+    Envelopes
+  </button>
+  <button class="nav-item" onclick="navigate('goals')" id="bnav-goals">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+    Goals
+  </button>
+  <button class="nav-item" onclick="navigate('cycle')" id="bnav-cycle">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+    Cycle
+  </button>
+</nav>
+
+<!-- ── ADD EXPENSE MODAL ── -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Log Expense</div>
+    <div class="amount-input-wrap">
+      <span class="amount-prefix">₹</span>
+      <input type="number" id="exp-amount" class="amount-input" placeholder="0" min="1" inputmode="decimal">
+    </div>
+    <div class="input-label">Category</div>
+    <div class="cat-chips" id="exp-cat-chips"></div>
+    <div class="input-label">Note (optional)</div>
+    <input type="text" id="exp-note" class="text-input" placeholder="e.g. Mess lunch, ice cream…">
+    <div class="sub-toggle" onclick="toggleSub()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      <span id="sub-toggle-label">Add subcategory</span>
+    </div>
+    <div class="sub-section" id="sub-section">
+      <div class="input-label">Subcategory</div>
+      <input type="text" id="exp-subcat" class="text-input" placeholder="e.g. Outside food, drinks…">
+    </div>
+    <div class="input-label">Date</div>
+    <input type="date" id="exp-date" class="text-input" style="margin-bottom:16px;color-scheme:dark">
+    <button class="modal-submit" id="exp-submit" onclick="submitExpense()" disabled>Add Expense</button>
+  </div>
+</div>
+
+<!-- ── ADD ENVELOPE MODAL ── -->
+<div class="modal-overlay" id="add-envelope-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="envelope-modal-title">New Envelope</div>
+    <div class="input-label">Name</div>
+    <input type="text" id="env-name" class="text-input" placeholder="e.g. Outside Food, Transport…">
+    <div class="input-label">Monthly Allocation (₹)</div>
+    <div class="amount-input-wrap">
+      <span class="amount-prefix">₹</span>
+      <input type="number" id="env-amount" class="amount-input" placeholder="0" min="1" inputmode="decimal">
+    </div>
+    <button class="modal-submit" onclick="submitEnvelope()">Save Envelope</button>
+  </div>
+</div>
+
+<!-- ── ADD GOAL MODAL ── -->
+<div class="modal-overlay" id="add-goal-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">New Savings Goal</div>
+    <div class="input-label">Goal Name</div>
+    <input type="text" id="goal-name" class="text-input" placeholder="e.g. CMF Earphones, ASICS Shoes…">
+    <div class="input-label">Target Amount (₹)</div>
+    <div class="amount-input-wrap">
+      <span class="amount-prefix">₹</span>
+      <input type="number" id="goal-target" class="amount-input" placeholder="0" min="1" inputmode="decimal">
+    </div>
+    <button class="modal-submit" onclick="submitGoal()">Add Goal</button>
+  </div>
+</div>
+
+<!-- ── FUND GOAL MODAL ── -->
+<div class="modal-overlay" id="fund-goal-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add to Goal</div>
+    <div class="input-label" id="fund-goal-label">Goal</div>
+    <div class="amount-input-wrap">
+      <span class="amount-prefix">₹</span>
+      <input type="number" id="fund-amount" class="amount-input" placeholder="0" min="1" inputmode="decimal">
+    </div>
+    <button class="modal-submit" onclick="submitFund()">Add Savings</button>
+  </div>
+</div>
+
+<!-- ── CONFIRM DIALOG ── -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirm-title">Are you sure?</div>
+    <div class="confirm-msg" id="confirm-msg">This cannot be undone.</div>
+    <div class="confirm-btns">
+      <button class="confirm-cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="confirm-ok" id="confirm-ok">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ── STATE ──
+const CAT_COLORS = ['--cat1','--cat2','--cat3','--cat4','--cat5','--cat6','--cat7','--cat8'];
+let state = {
+  budget: 2500,
+  cycle: null, // { startDate, endDate }
+  envelopes: [
+    { id: 'env1', name: 'Food', amount: 1800, color: '--cat2' },
+    { id: 'env2', name: 'Impulse', amount: 300, color: '--cat4' },
+    { id: 'env3', name: 'Savings', amount: 300, color: '--cat3' },
+    { id: 'env4', name: 'Misc', amount: 100, color: '--cat5' },
+  ],
+  expenses: [], // { id, amount, categoryId, note, subcat, date }
+  goals: [],    // { id, name, target, saved }
+  history: [],  // past cycles
+};
+
+let currentPage = 'home';
+let pieChart = null;
+let activeFilter = 'all';
+let editingEnvId = null;
+let fundingGoalId = null;
+let confirmCallback = null;
+
+// ── STORAGE ──
+function save() {
+  try { localStorage.setItem('rupee_v2', JSON.stringify(state)); } catch(e) {}
+}
+function load() {
+  try {
+    const raw = localStorage.getItem('rupee_v2');
+    if (raw) state = { ...state, ...JSON.parse(raw) };
+  } catch(e) {}
+}
+
+// ── NAV ──
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-item, .sidebar-nav-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll(`[id$="nav-${page}"]`).forEach(b => b.classList.add('active'));
+  currentPage = page;
+  render();
+}
+
+// ── RENDER ──
+function render() {
+  renderHome();
+  renderExpenses();
+  renderEnvelopes();
+  renderGoals();
+  renderCycle();
+}
+
+function fmtMoney(n) { return '₹' + Math.round(n).toLocaleString('en-IN'); }
+function getCatColor(cat) {
+  if (!cat) return '#7c6dfa';
+  return getComputedStyle(document.documentElement).getPropertyValue(cat.color || '--cat1').trim() || '#7c6dfa';
+}
+function getCatById(id) { return state.envelopes.find(e => e.id === id); }
+function catEmoji(name) {
+  const n = (name || '').toLowerCase();
+  if (n.includes('food') || n.includes('mess') || n.includes('eat')) return '🍽️';
+  if (n.includes('impulse') || n.includes('candy') || n.includes('ice')) return '🍦';
+  if (n.includes('sav')) return '🐷';
+  if (n.includes('transport') || n.includes('travel')) return '🚌';
+  if (n.includes('cloth') || n.includes('shoe') || n.includes('wear')) return '👟';
+  if (n.includes('health') || n.includes('med')) return '💊';
+  if (n.includes('misc') || n.includes('other')) return '📦';
+  return '💰';
+}
+
+function renderHome() {
+  const spent = state.expenses.reduce((a,e) => a+e.amount, 0);
+  const balance = state.budget - spent;
+  document.getElementById('home-balance').textContent = Math.max(0, balance).toLocaleString('en-IN');
+  document.getElementById('home-budget').textContent = fmtMoney(state.budget);
+  document.getElementById('stat-spent').textContent = fmtMoney(spent);
+  document.getElementById('stat-spent-pct').textContent = Math.round(spent/state.budget*100) + '% of budget';
+
+  let daysLeft = 30, daysPassed = 0;
+  if (state.cycle) {
+    const start = new Date(state.cycle.startDate);
+    const now = new Date();
+    daysPassed = Math.min(30, Math.floor((now - start) / 86400000));
+    daysLeft = Math.max(0, 30 - daysPassed);
+  }
+  const dailyBudget = daysLeft > 0 ? Math.round((balance) / daysLeft) : 0;
+  document.getElementById('stat-daily').textContent = fmtMoney(Math.max(0, dailyBudget));
+  document.getElementById('stat-daily-sub').textContent = daysLeft + ' days remaining';
+  document.getElementById('home-date').textContent = new Date().toLocaleDateString('en-IN', {weekday:'long',day:'numeric',month:'long'});
+
+  // Pace bar
+  const timeProgress = daysPassed / 30;
+  const spendProgress = spent / state.budget;
+  const fill = document.getElementById('pace-fill');
+  fill.style.width = (timeProgress * 100) + '%';
+  fill.style.background = spendProgress > timeProgress + 0.1 ? 'var(--red)' : spendProgress < timeProgress - 0.05 ? 'var(--green)' : 'var(--accent)';
+  document.getElementById('pace-label-left').textContent = `Day ${daysPassed} of 30`;
+  const paceMsg = !state.cycle ? 'No active cycle' : spendProgress > timeProgress + 0.1 ? 'Overspending ⚠️' : spendProgress < timeProgress - 0.05 ? 'Under budget ✓' : 'On track';
+  document.getElementById('pace-label-right').textContent = paceMsg;
+
+  // Recent
+  const recent = [...state.expenses].sort((a,b) => new Date(b.date)-new Date(a.date)).slice(0,5);
+  const el = document.getElementById('recent-list');
+  if (!recent.length) { el.innerHTML = '<div class="empty-state"><div class="big">💸</div>No expenses yet</div>'; return; }
+  el.innerHTML = recent.map(e => {
+    const cat = getCatById(e.categoryId);
+    const color = getCatColor(cat);
+    return `<div class="expense-item">
+      <div class="expense-dot" style="background:${color}22">${catEmoji(cat?.name)}</div>
+      <div class="expense-info">
+        <div class="expense-name">${e.note || cat?.name || 'Expense'}</div>
+        <div class="expense-meta">${cat?.name || '—'}${e.subcat ? ' · ' + e.subcat : ''} · ${new Date(e.date).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</div>
+      </div>
+      <div class="expense-amount">-₹${e.amount.toLocaleString('en-IN')}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderExpenses() {
+  // Pie chart
+  const byCategory = {};
+  state.expenses.forEach(e => {
+    const cat = getCatById(e.categoryId);
+    const name = cat?.name || 'Unknown';
+    byCategory[name] = (byCategory[name] || 0) + e.amount;
+  });
+  const labels = Object.keys(byCategory);
+  const data = Object.values(byCategory);
+  const colors = labels.map((_,i) => {
+    const env = state.envelopes[i % state.envelopes.length];
+    return getCatColor(env || {color:'--cat1'});
+  }).map((_,i) => {
+    const envForLabel = state.envelopes.find(e => e.name === labels[i]);
+    return envForLabel ? getCatColor(envForLabel) : getComputedStyle(document.documentElement).getPropertyValue('--cat' + ((i%8)+1)).trim();
+  });
+
+  const ctx = document.getElementById('pie-chart').getContext('2d');
+  if (pieChart) pieChart.destroy();
+  if (!labels.length) {
+    pieChart = null;
+    document.getElementById('chart-legend').innerHTML = '<div style="font-size:13px;color:var(--text2);padding:10px">No data yet</div>';
+  } else {
+    pieChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 0, hoverOffset: 8 }] },
+      options: {
+        cutout: '68%', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ₹${ctx.raw.toLocaleString('en-IN')} (${Math.round(ctx.raw/data.reduce((a,b)=>a+b,0)*100)}%)` } } }
+      }
+    });
+    document.getElementById('chart-legend').innerHTML = labels.map((l,i) =>
+      `<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)">
+        <div style="width:8px;height:8px;border-radius:50%;background:${colors[i]};flex-shrink:0"></div>${l}
+      </div>`).join('');
+  }
+
+  // Filter chips
+  const filterRow = document.getElementById('filter-row');
+  filterRow.innerHTML = '<div class="filter-chip' + (activeFilter==='all'?' active':'') + '" data-filter="all" onclick="setFilter(\'all\',this)">All</div>';
+  state.envelopes.forEach(env => {
+    const active = activeFilter === env.id ? ' active' : '';
+    filterRow.innerHTML += `<div class="filter-chip${active}" data-filter="${env.id}" onclick="setFilter('${env.id}',this)">${env.name}</div>`;
+  });
+
+  // List
+  const filtered = activeFilter === 'all' ? state.expenses : state.expenses.filter(e => e.categoryId === activeFilter);
+  const sorted = [...filtered].sort((a,b) => new Date(b.date)-new Date(a.date));
+  const el = document.getElementById('expense-list');
+  if (!sorted.length) { el.innerHTML = '<div class="empty-state"><div class="big">📋</div>No expenses here</div>'; return; }
+  el.innerHTML = sorted.map(e => {
+    const cat = getCatById(e.categoryId);
+    const color = getCatColor(cat);
+    return `<div class="expense-item">
+      <div class="expense-dot" style="background:${color}22">${catEmoji(cat?.name)}</div>
+      <div class="expense-info">
+        <div class="expense-name">${e.note || cat?.name || 'Expense'}</div>
+        <div class="expense-meta">${cat?.name || '—'}${e.subcat ? ' · ' + e.subcat : ''} · ${new Date(e.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="expense-amount">-₹${e.amount.toLocaleString('en-IN')}</div>
+        <button class="expense-delete" onclick="deleteExpense('${e.id}')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setFilter(id, el) {
+  activeFilter = id;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderExpenses();
+}
+
+function renderEnvelopes() {
+  const spent = {};
+  state.expenses.forEach(e => { spent[e.categoryId] = (spent[e.categoryId]||0) + e.amount; });
+  const total = state.envelopes.reduce((a,e) => a+e.amount, 0);
+  document.getElementById('total-allocated').textContent = `${fmtMoney(total)} / ${fmtMoney(state.budget)}`;
+
+  const el = document.getElementById('envelope-list');
+  el.innerHTML = state.envelopes.map(env => {
+    const s = spent[env.id] || 0;
+    const pct = Math.min(100, Math.round(s/env.amount*100));
+    const color = getCatColor(env);
+    const over = s > env.amount;
+    return `<div class="envelope-card">
+      <div class="envelope-header">
+        <div class="envelope-name">
+          <div class="envelope-dot" style="background:${color}"></div>
+          ${catEmoji(env.name)} ${env.name}
+        </div>
+        <div class="envelope-actions">
+          <button class="icon-btn" onclick="openEditEnvelope('${env.id}')">Edit</button>
+          <button class="icon-btn danger" onclick="confirmDeleteEnv('${env.id}')">✕</button>
+        </div>
+      </div>
+      <div class="envelope-amounts">
+        <span style="color:${over?'var(--red)':'var(--text2)'}">${fmtMoney(s)} spent</span>
+        <span>${fmtMoney(env.amount)} budget</span>
+      </div>
+      <div class="envelope-bar"><div class="envelope-fill" style="width:${pct}%;background:${over?'var(--red)':color}"></div></div>
+      ${over ? `<div style="font-size:11px;color:var(--red);margin-top:6px">Over by ${fmtMoney(s-env.amount)}</div>` : `<div style="font-size:11px;color:var(--text2);margin-top:6px">${fmtMoney(env.amount-s)} remaining</div>`}
+    </div>`;
+  }).join('');
+}
+
+function renderGoals() {
+  const el = document.getElementById('goal-list');
+  if (!state.goals.length) { el.innerHTML = '<div class="empty-state"><div class="big">🎯</div>Add your first savings goal</div>'; return; }
+  el.innerHTML = state.goals.map(g => {
+    const pct = Math.min(100, Math.round(g.saved/g.target*100));
+    const done = g.saved >= g.target;
+    return `<div class="goal-card${done?' completed':''}">
+      <div class="goal-name">${g.name}</div>
+      <div class="goal-sub">${fmtMoney(g.saved)} saved of ${fmtMoney(g.target)}</div>
+      <div class="goal-bar"><div class="goal-fill${done?' done':''}" style="width:${pct}%"></div></div>
+      <div class="goal-amounts"><span>${pct}%</span><span>${fmtMoney(g.target - g.saved)} to go</span></div>
+      <div class="goal-actions">
+        ${!done ? `<button class="goal-fund-btn" onclick="openFundGoal('${g.id}')">+ Add Savings</button>` : ''}
+        <button class="icon-btn danger" onclick="confirmDeleteGoal('${g.id}')" style="padding:9px 14px">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderCycle() {
+  const dot = document.getElementById('cycle-dot');
+  const label = document.getElementById('cycle-status-label');
+  const daysEl = document.getElementById('cycle-days-left');
+  const sub = document.getElementById('cycle-sub');
+  const startBtn = document.getElementById('start-cycle-btn');
+  const endBtn = document.getElementById('end-cycle-btn');
+
+  if (state.cycle) {
+    const start = new Date(state.cycle.startDate);
+    const now = new Date();
+    const passed = Math.floor((now - start) / 86400000);
+    const left = Math.max(0, 30 - passed);
+    dot.classList.remove('inactive');
+    label.textContent = 'Active cycle';
+    daysEl.textContent = left + (left === 1 ? ' day left' : ' days left');
+    sub.textContent = 'Started ' + start.toLocaleDateString('en-IN', {day:'numeric',month:'long',year:'numeric'});
+    startBtn.style.display = 'none';
+    endBtn.style.display = 'block';
+    if (left === 0) { label.textContent = 'Cycle ending — review & reset'; dot.style.background = 'var(--amber)'; }
+  } else {
+    dot.classList.add('inactive');
+    label.textContent = 'No active cycle';
+    daysEl.textContent = '—';
+    sub.textContent = 'Start a new cycle to begin tracking';
+    startBtn.style.display = 'block';
+    endBtn.style.display = 'none';
+  }
+
+  // History
+  const hist = document.getElementById('cycle-history');
+  if (!state.history.length) { hist.innerHTML = '<div style="font-size:13px;color:var(--text2)">No past cycles yet.</div>'; return; }
+  hist.innerHTML = state.history.map(h => {
+    return `<div class="history-item">
+      <div>
+        <div style="font-weight:500">${new Date(h.startDate).toLocaleDateString('en-IN',{day:'numeric',month:'short'})} – ${new Date(h.endDate).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div>
+        <div style="font-size:12px;color:var(--text2)">${h.expenseCount} expenses</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:var(--font-display);font-weight:700">${fmtMoney(h.totalSpent)}</div>
+        <div style="font-size:12px;color:var(--text2)">of ${fmtMoney(h.budget)}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Sidebar
+  document.getElementById('sidebar-cycle-info').innerHTML = state.cycle
+    ? `<strong>Active Cycle</strong><br>Day ${Math.min(30,Math.floor((new Date()-new Date(state.cycle.startDate))/86400000))} of 30<br>${fmtMoney(state.budget - state.expenses.reduce((a,e)=>a+e.amount,0))} remaining`
+    : 'No active cycle';
+
+  document.getElementById('budget-input').value = state.budget;
+}
+
+// ── ADD EXPENSE ──
+function openAddModal() {
+  // Build chips
+  const chips = document.getElementById('exp-cat-chips');
+  chips.innerHTML = state.envelopes.map(env => {
+    const color = getCatColor(env);
+    return `<div class="cat-chip" data-id="${env.id}" style="--chip-color:${color}" onclick="selectCat(this,'${env.id}','${color}')">${catEmoji(env.name)} ${env.name}</div>`;
+  }).join('');
+  document.getElementById('exp-amount').value = '';
+  document.getElementById('exp-note').value = '';
+  document.getElementById('exp-subcat').value = '';
+  document.getElementById('exp-submit').disabled = true;
+  document.getElementById('sub-section').classList.remove('visible');
+  document.getElementById('sub-toggle-label').textContent = 'Add subcategory';
+  // Default date to today
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('exp-date').value = today;
+  document.getElementById('add-modal').classList.add('open');
+  setTimeout(() => document.getElementById('exp-amount').focus(), 100);
+}
+
+function selectCat(el, id, color) {
+  document.querySelectorAll('.cat-chip').forEach(c => { c.classList.remove('selected'); c.style.background = ''; });
+  el.classList.add('selected');
+  el.style.background = color;
+  el._selectedId = id;
+  checkExpSubmit();
+}
+
+function checkExpSubmit() {
+  const amt = parseFloat(document.getElementById('exp-amount').value);
+  const hasChip = !!document.querySelector('.cat-chip.selected');
+  document.getElementById('exp-submit').disabled = !(amt > 0 && hasChip);
+}
+
+document.getElementById('exp-amount').addEventListener('input', checkExpSubmit);
+
+function toggleSub() {
+  const s = document.getElementById('sub-section');
+  const visible = s.classList.toggle('visible');
+  document.getElementById('sub-toggle-label').textContent = visible ? 'Hide subcategory' : 'Add subcategory';
+}
+
+function submitExpense() {
+  const amt = parseFloat(document.getElementById('exp-amount').value);
+  const catEl = document.querySelector('.cat-chip.selected');
+  if (!amt || !catEl) return;
+  const selectedDate = document.getElementById('exp-date').value;
+  const exp = {
+    id: 'e' + Date.now(),
+    amount: amt,
+    categoryId: catEl._selectedId,
+    note: document.getElementById('exp-note').value.trim(),
+    subcat: document.getElementById('exp-subcat').value.trim(),
+    date: selectedDate ? new Date(selectedDate + 'T12:00:00').toISOString() : new Date().toISOString()
+  };
+  state.expenses.push(exp);
+  save();
+  closeModal('add-modal');
+  toast('Expense logged ✓');
+  render();
+}
+
+// ── ENVELOPE ──
+function openAddEnvelopeModal() {
+  editingEnvId = null;
+  document.getElementById('envelope-modal-title').textContent = 'New Envelope';
+  document.getElementById('env-name').value = '';
+  document.getElementById('env-amount').value = '';
+  document.getElementById('add-envelope-modal').classList.add('open');
+}
+
+function openEditEnvelope(id) {
+  editingEnvId = id;
+  const env = state.envelopes.find(e => e.id === id);
+  document.getElementById('envelope-modal-title').textContent = 'Edit Envelope';
+  document.getElementById('env-name').value = env.name;
+  document.getElementById('env-amount').value = env.amount;
+  document.getElementById('add-envelope-modal').classList.add('open');
+}
+
+function submitEnvelope() {
+  const name = document.getElementById('env-name').value.trim();
+  const amount = parseFloat(document.getElementById('env-amount').value);
+  if (!name || !amount) { toast('Fill in all fields'); return; }
+  if (editingEnvId) {
+    const env = state.envelopes.find(e => e.id === editingEnvId);
+    env.name = name; env.amount = amount;
+  } else {
+    const colorIdx = state.envelopes.length % 8;
+    state.envelopes.push({ id: 'env' + Date.now(), name, amount, color: '--cat' + (colorIdx+1) });
+  }
+  save(); closeModal('add-envelope-modal'); toast('Envelope saved ✓'); render();
+}
+
+function confirmDeleteEnv(id) {
+  showConfirm('Delete Envelope?', 'This won\'t delete expenses, but they\'ll show as uncategorised.', () => {
+    state.envelopes = state.envelopes.filter(e => e.id !== id);
+    save(); render(); toast('Envelope deleted');
+  });
+}
+
+// ── GOALS ──
+function openAddGoalModal() {
+  document.getElementById('goal-name').value = '';
+  document.getElementById('goal-target').value = '';
+  document.getElementById('add-goal-modal').classList.add('open');
+}
+
+function submitGoal() {
+  const name = document.getElementById('goal-name').value.trim();
+  const target = parseFloat(document.getElementById('goal-target').value);
+  if (!name || !target) { toast('Fill in all fields'); return; }
+  state.goals.push({ id: 'g' + Date.now(), name, target, saved: 0 });
+  save(); closeModal('add-goal-modal'); toast('Goal added ✓'); render();
+}
+
+function openFundGoal(id) {
+  fundingGoalId = id;
+  const g = state.goals.find(x => x.id === id);
+  document.getElementById('fund-goal-label').textContent = g.name;
+  document.getElementById('fund-amount').value = '';
+  document.getElementById('fund-goal-modal').classList.add('open');
+}
+
+function submitFund() {
+  const amt = parseFloat(document.getElementById('fund-amount').value);
+  if (!amt) return;
+  const g = state.goals.find(x => x.id === fundingGoalId);
+  g.saved = Math.min(g.target, g.saved + amt);
+  save(); closeModal('fund-goal-modal');
+  if (g.saved >= g.target) toast('🎉 Goal reached!');
+  else toast('Savings added ✓');
+  render();
+}
+
+function confirmDeleteGoal(id) {
+  showConfirm('Delete Goal?', 'Your saved amount will be lost.', () => {
+    state.goals = state.goals.filter(g => g.id !== id);
+    save(); render(); toast('Goal removed');
+  });
+}
+
+// ── EXPENSES ──
+function deleteExpense(id) {
+  showConfirm('Delete Expense?', 'This will remove it from your records.', () => {
+    state.expenses = state.expenses.filter(e => e.id !== id);
+    save(); render(); toast('Expense deleted');
+  });
+}
+
+// ── CYCLE ──
+function saveBudget() {
+  const val = parseFloat(document.getElementById('budget-input').value);
+  if (!val || val < 100) { toast('Enter a valid budget'); return; }
+  state.budget = val;
+  save(); toast('Budget updated ✓'); render();
+}
+
+function startNewCycle() {
+  state.cycle = { startDate: new Date().toISOString() };
+  state.expenses = [];
+  save(); toast('New cycle started ✓'); render();
+}
+
+function confirmEndCycle() {
+  showConfirm('End Current Cycle?', 'This will archive this month and clear expenses. Export a backup first if needed.', () => {
+    if (state.cycle) {
+      state.history.unshift({
+        startDate: state.cycle.startDate,
+        endDate: new Date().toISOString(),
+        totalSpent: state.expenses.reduce((a,e)=>a+e.amount,0),
+        expenseCount: state.expenses.length,
+        budget: state.budget
+      });
+    }
+    state.cycle = null;
+    state.expenses = [];
+    save(); toast('Cycle archived'); render();
+  });
+}
+
+// ── BACKUP ──
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'rupee-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Backup downloaded ✓');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      // Validate basic shape
+      if (!imported.envelopes || !Array.isArray(imported.expenses)) throw new Error('Invalid file');
+      state = { ...state, ...imported };
+      save(); render(); toast('Data imported ✓');
+    } catch(err) { toast('Import failed — invalid file'); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ── UTILS ──
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function showConfirm(title, msg, cb) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent = msg;
+  confirmCallback = cb;
+  document.getElementById('confirm-overlay').classList.add('open');
+  document.getElementById('confirm-ok').onclick = () => { closeConfirm(); cb(); };
+}
+function closeConfirm() { document.getElementById('confirm-overlay').classList.remove('open'); }
+
+// ── INIT ──
+load();
+render();
+</script>
+</body>
+</html>
